@@ -1,0 +1,17 @@
+{
+  "name": "pixel-game-video-skill",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-contained pixel RPG video skill and local Canvas rendering workflow",
+  "type": "module",
+  "license": "MIT",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "preview": "node preview.mjs",
+    "audio": "node make-audio.mjs",
+    "render": "node render.mjs --page demo.html --audio demo.wav --out output/demo.mp4",
+    "test": "node --test test-state.mjs",
+    "check": "node check.mjs"
+  },
+  "dependencies": {"puppeteer-core": "25.11.0"}
+}

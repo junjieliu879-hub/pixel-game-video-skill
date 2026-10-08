@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><title>Trade Routes · Pixel Example</title>
+<style>body{margin:0;background:#172035}canvas{width:100%;image-rendering:pixelated;display:block}</style>
+<canvas width="320" height="180"></canvas><script type="module">
+import {renderPixelV2} from './trade.js';
+const c=document.querySelector('canvas');window.DUR=12;
+window.render=t=>renderPixelV2(c,Math.max(0,Math.min(12,t)));
+window.render(0);window.READY=true;
+</script>

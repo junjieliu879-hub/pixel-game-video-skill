@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><title>Pixel Game Video · 可视工作台</title>
+<style>
+body{margin:24px auto;max-width:1100px;background:#101427;color:#edf0d4;font:16px system-ui;padding:0 18px}canvas,video{width:100%;aspect-ratio:16/9;background:#101427}canvas{image-rendering:pixelated}button,select{padding:9px;margin:8px 8px 8px 0;background:#29304d;color:#edf0d4;border:1px solid #65718e;border-radius:4px}input{width:65%}p{color:#aab4d0}a{color:#5ddbec}
+</style>
+<h1>像素游戏视频 · 可视工作台</h1>
+<select id="scene" aria-label="选择案例"><option value="quest">符文解谜 · 20 秒</option><option value="trade">商路与交换 · 12 秒</option></select>
+<canvas width="320" height="180"></canvas>
+<button id="play">播放 / 暂停</button><input id="seek" type="range" aria-label="时间轴" min="0" max="20" step="0.0416666667" value="0"><span id="time">0.00 / 20.00</span>
+<p id="sound">符文案例配原创芯片音乐与动作音效；商路案例是无声画面示例。附带完整有声示例；修改画面后重新生成音轨与成片。</p>
+<audio id="audio" src="demo.mp4" preload="auto"></audio>
+<details><summary>已导出的完整示例视频</summary><video controls src="demo.mp4" poster="poster.png"></video></details>
+<p>代码绘制、整数像素、确定性时间轴；场景与故事按新内容重写。详见 <a href="STORYBOARD.md">当前示例分镜</a>。</p>
+<script type="module">
+import {renderQuest} from './quest.js';
+import {renderPixelV2} from './trade.js';
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d'),audio=document.querySelector('audio'),seek=document.querySelector('#seek'),time=document.querySelector('#time'),scene=document.querySelector('#scene');
+window.DUR=20;
+window.render=t=>{t=Math.max(0,Math.min(window.DUR,t));scene.value==='trade'?renderPixelV2(canvas,t):renderQuest(ctx,t);seek.value=t;time.textContent=`${t.toFixed(2)} / ${window.DUR.toFixed(2)}`;};
+let playing=false,now=0,last=0,soundReady=false;
+try{const response=await fetch('demo.wav',{method:'HEAD'});if(response.ok)audio.src='demo.wav';}catch{}
+audio.addEventListener('canplay',()=>{soundReady=true;});
+audio.addEventListener('error',()=>{document.querySelector('#sound').textContent='示例音轨未加载，当前无声。运行 npm run audio，再刷新。';});
+scene.onchange=()=>{playing=false;audio.pause();now=0;window.DUR=scene.value==='trade'?12:20;seek.max=window.DUR;window.render(0);};
+seek.oninput=()=>{now=Number(seek.value);if(scene.value==='quest'&&soundReady)audio.currentTime=now;window.render(now);};
+document.querySelector('#play').onclick=async()=>{soundReady=audio.readyState>=2;if(now>=window.DUR)now=0;playing=!playing;last=performance.now();if(scene.value==='quest'&&soundReady){audio.currentTime=now;if(playing)try{await audio.play();}catch{playing=false;document.querySelector('#sound').textContent='音轨播放失败，请检查音频文件是否能正常播放。';}else audio.pause();}};
+function tick(stamp){if(playing){now=scene.value==='quest'&&soundReady?audio.currentTime:now+(stamp-last)/1000;if(now>=window.DUR){now=window.DUR;playing=false;audio.pause();}window.render(now);}last=stamp;requestAnimationFrame(tick);}
+window.render(0);window.READY=true;requestAnimationFrame(tick);
+</script></html>
